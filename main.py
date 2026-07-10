@@ -24,9 +24,8 @@ class Link:
 #Use my Link Class
 
 link = Link(
-
     "slug",
-
+    
     "main Url"
 
 )
