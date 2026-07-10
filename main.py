@@ -1,18 +1,26 @@
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 from dotenv import load_dotenv
+from flask import Flask,render_template,redirect,abort
 import time
 import os
 load_dotenv()
+
+app = Flask(__name__)
+
 mongoclient = os.getenv("mongoclient")
 client = MongoClient(mongoclient)
 
 print("connected")
 
-db = client[""] #Name of DB
-collection = db[""] # Name of which ever collection has links.
+db = client["Slug-URL-DB"] # WARNING: FOR NOW THIS IS JUST HARDCODED FOR MY TESTING CHANGE IT ACCORDING TO YOUR TESTING ENV
+collection = db["Slug-URL-Collection"] # WARNING: FOR NOW THIS IS JUST HARDCODED FOR MY TESTING CHANGE IT ACCORDING TO YOUR TESTING ENV
 collection.create_index("slug", unique=True)
 
+
+@app.errorhandler(404)
+def not_found(_):
+    return render_template("404.html"), 404
 
 class Link:
 
@@ -77,3 +85,16 @@ class Link:
             return False
         return True
    
+@app.route("/<path:slug>")
+def redirect_slug(slug):
+    print(slug)
+    link = Link.getBySlug(slug)
+
+    if link is None:
+        abort(404)
+
+    return redirect(link["url"])
+
+
+if __name__ == "__main__":
+    app.run()
