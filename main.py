@@ -28,6 +28,16 @@ class Link:
             print(e)
             return False
         return True
+    
+    def delete(self): #Call it to delete the link from DB
+        db = client[""] #Name of DB
+        collection = db[""] # Name of whatever collection has links.
+        try:
+            collection.delete_one({"_id": self.slug})
+        except Exception as e:
+            print(e)
+            return False
+        return True
         
 #Use my Link Class
 
