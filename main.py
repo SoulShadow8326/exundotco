@@ -10,18 +10,19 @@ print("connected")
 
 class Link:
 
-    def __init__(self, slug, url): #Slug Is Short Link #Url IS The link we need to DIrect User to
-                                   #Self Is the main Link we're Making
-        self.slug = slug
-        self.url = url
+    # def __init__(self, slug, url): #Slug Is Short Link #Url IS The link we need to DIrect User to
+    #                                #Self Is the main Link we're Making
+    #     self.slug = slug
+    #     self.url = url
 
-    def save(self): #Call it to save the newly made links to DB
+    @classmethod
+    def create(cls, slug, url): #Call it to save the newly made links to DB
         db = client[""] #Name of DB
-        collection = db[""] # Name of whatever collection has links.
+        collection = db[""] # Name of which ever collection has links.
         try:
             collection.insert_one({
-            "slug": self.slug,
-            "url": self.url,
+            "slug": slug,
+            "url": url,
             "date_modified": time.time()
             })
         except Exception as e:
@@ -29,11 +30,43 @@ class Link:
             return False
         return True
     
-    def delete(self): #Call it to delete the link from DB
+    @classmethod
+    def getBySlug(cls, slug): #Call it to get the link from DB
         db = client[""] #Name of DB
-        collection = db[""] # Name of whatever collection has links.
+        collection = db[""] # Name of which ever collection has links.
+        try:    
+            result = collection.find_one({"slug": slug})
+            if result is None:
+                print("No doc found with the given slug.")
+                return None 
+            return result
+        except Exception as e:
+            print(e)
+            return None
+        
+    @classmethod
+    def deleteBySlug(cls, slug): #Call it to delete the link from DB
+        db = client[""] #Name of DB
+        collection = db[""] # Name of which ever collection has links.
         try:
-            collection.delete_one({"slug": self.slug})
+            result = collection.delete_one({"slug": slug})
+            if result.deleted_count == 0:
+                print("No doc found with the given slug.")
+                return False
+        except Exception as e:
+            print(e)
+            return False
+        return True
+    
+    @classmethod
+    def updateBySlug(cls, slug, new_slug, new_url): #Call it to update the link in DB
+        db = client[""] #Name of DB
+        collection = db[""] # Name of which ever collection has links.
+        try:
+            result = collection.update_one({"slug": slug}, {"$set": {"slug": new_slug, "url": new_url, "date_modified": time.time()}})
+            if result.matched_count == 0:
+                print("No doc found with the given slug.")
+                return False
         except Exception as e:
             print(e)
             return False
@@ -41,9 +74,9 @@ class Link:
    
 #Use my Link Class
 
-link = Link(
-    "slug",
+# link = Link(
+#     "slug",
     
-    "main Url"
+#     "main Url"
 
-)
+# )
