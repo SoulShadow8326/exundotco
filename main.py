@@ -16,14 +16,19 @@ class Link:
         self.url = url
 
     def save(self): #Call it to save the newly made links to DB
-     db = client[""] #Name of DB
-     collection = db[""] # Name of whatever collection has links.
-     collection.insert_one({
-      "_id": self.slug,
-      "val": self.url,
-      "date_modified": time.time()
-      })
-     
+        db = client[""] #Name of DB
+        collection = db[""] # Name of whatever collection has links.
+        try:
+            collection.insert_one({
+            "_id": self.slug,
+            "val": self.url,
+            "date_modified": time.time()
+            })
+        except Exception as e:
+            print(e)
+            return False
+        return True
+        
 #Use my Link Class
 
 link = Link(
