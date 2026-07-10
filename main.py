@@ -20,8 +20,8 @@ class Link:
         collection = db[""] # Name of whatever collection has links.
         try:
             collection.insert_one({
-            "_id": self.slug,
-            "val": self.url,
+            "slug": self.slug,
+            "url": self.url,
             "date_modified": time.time()
             })
         except Exception as e:
@@ -33,12 +33,12 @@ class Link:
         db = client[""] #Name of DB
         collection = db[""] # Name of whatever collection has links.
         try:
-            collection.delete_one({"_id": self.slug})
+            collection.delete_one({"slug": self.slug})
         except Exception as e:
             print(e)
             return False
         return True
-        
+   
 #Use my Link Class
 
 link = Link(
