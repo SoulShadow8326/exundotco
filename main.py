@@ -77,11 +77,3 @@ class Link:
             return False
         return True
    
-#Use my Link Class
-
-# link = Link(
-#     "slug",
-    
-#     "main Url"
-
-# )
