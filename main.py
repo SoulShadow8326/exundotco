@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
+import time
 import os
 load_dotenv()
 mongoclient = os.getenv("mongoclient")
@@ -18,8 +19,10 @@ class Link:
      db = client[""] #Name of DB
      collection = db[""] # Name of whatever collection has links.
      collection.insert_one({
-      "slug": self.slug,
-      "url": self.url})
+      "_id": self.slug,
+      "val": self.url,
+      "date_modified": time.time()
+      })
      
 #Use my Link Class
 
