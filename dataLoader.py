@@ -2,7 +2,7 @@ import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import json
-from pymongo.errors import DuplicateKeyError
+
 
 load_dotenv()
 
@@ -19,12 +19,12 @@ for doc in data:
 
     if url.startswith("/"):
         url = url[1:]
-    if not url.startswith("http://","https://"):
+    if not url.startswith(("http://", "https://")):
         url = "https://" + url
-        
+
     mongo_data.append({
         "slug": doc["_id"],
-        "url": doc["val"],
+        "url": url,
         "date_modified": doc["date_modified"]
     })
 
