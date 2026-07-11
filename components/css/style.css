@@ -362,3 +362,7 @@ body{
 .dark-mode .links-table a{
     color:#4da3ff;
 }
+
+.dark-mode .links-table tr:hover{/* Making the table go black hen hovering over it */
+    background: #2d2d2d;
+}
