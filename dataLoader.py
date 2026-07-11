@@ -2,6 +2,7 @@ import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import json
+from pymongo.errors import DuplicateKeyError
 
 load_dotenv()
 
@@ -20,4 +21,7 @@ for doc in data:
         "date_modified": doc["date_modified"]
     })
 
-result = collection.insert_many(mongo_data) 
+try:
+    collection.insert_many(mongo_data, ordered=False)
+except Exception as e:
+    print(f"Error occurred while inserting data: {e}")
