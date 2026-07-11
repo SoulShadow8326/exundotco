@@ -149,10 +149,89 @@ body{
 }
 
 .table-container{
-    width: 90%;      /* Try 85%, 90%, or 95% */
+    width: 90%;      
     margin: 30px auto;
 }
 
 .links-table td:first-child{
     font-weight: 600;
+} 
+
+/* Modal Background */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+}
+
+/* Modal Box */
+.modal-content{
+    width:420px;
+    background:#fff;
+    border-radius:10px;
+    padding:30px;
+}
+
+.modal-content h2{
+    margin-bottom:20px;
+    color:#1f2937;
+}
+
+.input-group{
+    margin-bottom:18px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:600;
+}
+
+.input-group input{
+    width:100%;
+    padding:12px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    font-size:14px;
+}
+
+.modal-buttons{
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    margin-top:25px;
+}
+
+.cancel-btn{
+    background:#f3f4f6;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.save-btn{
+    background:#4075ED;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.button-container{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.button-container .edit-btn,
+.button-container .delete-btn{
+    margin:0;
 }
