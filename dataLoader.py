@@ -15,6 +15,13 @@ with open("data.json", "r") as file:
 
 mongo_data = []
 for doc in data:
+    url = doc["val"]
+
+    if url.startswith("/"):
+        url = url[1:]
+    if not url.startswith("http://","https://"):
+        url = "https://" + url
+        
     mongo_data.append({
         "slug": doc["_id"],
         "url": doc["val"],
