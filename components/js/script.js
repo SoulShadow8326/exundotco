@@ -1,4 +1,5 @@
 const addBtn = document.querySelector(".add-btn");
+const themeToggle = document.querySelector("#themeToggle"); /* For Dark mode/Light Mode Button */
 const modal = document.querySelector("#addModal");
 const cancelBtn = document.querySelector(".cancel-btn");
 
@@ -122,4 +123,10 @@ saveBtn.addEventListener("click", () => {
 
     // Close Modal
     modal.style.display = "none";
+});
+
+themeToggle.addEventListener("change", () => { /* Checks for theme toogle box being On or Off */
+
+    document.body.classList.toggle("dark-mode");
+
 });

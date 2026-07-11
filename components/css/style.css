@@ -13,6 +13,7 @@ body{
     height: 70px;
     background:#ffffff;
     display:flex;
+    justify-content:space-between; /*Added to keep space between logo and toggle for Theme */
     align-items:center;
     padding:0 30px;
     border-bottom:1px solid #e5e7eb;
@@ -234,4 +235,130 @@ body{
 .button-container .edit-btn,
 .button-container .delete-btn{
     margin:0;
+}
+
+.theme-switch{        /* Make the Mouse hover in hand mode over Toogle Button */
+    cursor:pointer;
+}
+
+
+.theme-switch input{ /* Dont Display Toggle Checkbox */
+    display:none;
+}
+
+.slider{     /* Toogle Slider*/
+
+ width:90px;
+
+ height:40px;
+
+ background:#e5e7eb;
+
+ border-radius:50px;
+
+ display:flex; /*Flex Putts Everything horizontally*/
+
+ justify-content:space-between;
+
+ align-items:center;
+
+ padding:0 10px;
+
+ position:relative;}
+
+
+.slider::before{
+
+ content:"";
+
+ position:absolute;
+
+ width:34px;
+
+ height:34px;
+
+ background:white;
+
+ border-radius:50%;
+
+ left:3px;
+
+ top:3px;
+
+ transition:0.3s;}
+
+ #themeToggle:checked + .slider::before{ /* Making The Circle Move*/
+
+    transform:translateX(50px);
+
+}
+
+/* Dark Mode */
+/* Yall Really had to make the other logos have their own Bg */
+
+.dark-mode{
+    background:#1a1a1a;
+    color:white;
+}
+
+.dark-mode .navbar{
+    background:#242424;
+}
+
+.dark-mode .logo{
+    color:white;
+}
+
+.dark-mode .container h1{
+    color:white;
+}
+
+.dark-mode .table-container{
+    background:#2a2a2a;
+}
+
+.dark-mode .links-table{
+    background:#1f1f1f;
+    color:white;
+    border-color:#555;
+}
+
+.dark-mode .links-table th{
+    background:#333333;
+}
+
+.dark-mode .links-table td{
+    border-color:#555555;
+}
+
+.dark-mode .search-box input{
+    background:#2b2b2b;
+    color:white;
+    border:1px solid #555;
+}
+
+.dark-mode .modal-content{
+    background:#2b2b2b;
+    color:white;
+}
+
+.dark-mode input{
+    background:#333333;
+    color:white;
+    border:1px solid #666;
+}
+.dark-mode .table-container{
+    background:#1f1f1f;
+}
+
+.dark-mode .links-table td{ /* Fixing the color of the tables text */
+    color:#4da3ff;
+}
+
+.dark-mode .links-table th{
+    color:#4da3ff;
+}
+
+.dark-mode .links-table a{
+    color:#4da3ff;
 }
