@@ -7,6 +7,8 @@ const urlInput = document.querySelector("#urlInput");
 const saveBtn = document.querySelector(".save-btn");
 
 const tableBody = document.querySelector("#tableBody");
+let isEditing = false;
+let editingRow = null;
 
 // Open Modal
 addBtn.addEventListener("click", () => {
@@ -15,7 +17,18 @@ addBtn.addEventListener("click", () => {
 
 // Close Modal
 cancelBtn.addEventListener("click", () => {
+
     modal.style.display = "none";
+
+    slugInput.value = "";
+    urlInput.value = "";
+
+    isEditing = false;
+    editingRow = null;
+
+    saveBtn.textContent = "Add Link";
+    document.querySelector(".modal-content h2").textContent = "Add New Link";
+
 });
 
 // Close Modal when clicking outside
@@ -53,10 +66,38 @@ saveBtn.addEventListener("click", () => {
     const existingSlugs = tableBody.querySelectorAll("tr td:first-child");
 
     for (const cell of existingSlugs) {
-        if (cell.textContent === `exun.co/${slug}`) {
+
+        if (
+            cell.textContent === `exun.co/${slug}` &&
+            (!isEditing || cell.parentElement !== editingRow)
+        ) {
             alert("This slug already exists.");
             return;
         }
+
+    }
+
+    // EDIT EXISTING ROW
+    if (isEditing) {
+
+        editingRow.cells[0].textContent = `exun.co/${slug}`;
+
+        const link = editingRow.cells[1].querySelector("a");
+        link.href = url;
+        link.textContent = url;
+
+        modal.style.display = "none";
+
+        slugInput.value = "";
+        urlInput.value = "";
+
+        isEditing = false;
+        editingRow = null;
+
+        saveBtn.textContent = "Add Link";
+        document.querySelector(".modal-content h2").textContent = "Add New Link";
+
+        return;
     }
 
     // Create Row
@@ -122,4 +163,37 @@ saveBtn.addEventListener("click", () => {
 
     // Close Modal
     modal.style.display = "none";
+});
+
+tableBody.addEventListener("click", (event) => {
+
+    // DELETE
+    if (event.target.classList.contains("delete-btn")) {
+
+        const row = event.target.closest("tr");
+
+        if (confirm("Are you sure you want to delete this link?")) {
+            row.remove();
+        }
+
+    }
+
+    // EDIT
+    if (event.target.classList.contains("edit-btn")) {
+
+        editingRow = event.target.closest("tr");
+        isEditing = true;
+
+        const slug = editingRow.cells[0].textContent.replace("exun.co/", "");
+        const url = editingRow.cells[1].querySelector("a").href;
+
+        slugInput.value = slug;
+        urlInput.value = url;
+
+        document.querySelector(".modal-content h2").textContent = "Edit Link";
+        saveBtn.textContent = "Save Changes";
+
+        modal.style.display = "flex";
+    }
+
 });
