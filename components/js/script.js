@@ -2,11 +2,10 @@ const addBtn = document.querySelector(".add-btn");
 const themeToggle = document.querySelector("#themeToggle"); /* For Dark mode/Light Mode Button */
 const modal = document.querySelector("#addModal");
 const cancelBtn = document.querySelector(".cancel-btn");
-
 const slugInput = document.querySelector("#slugInput");
 const urlInput = document.querySelector("#urlInput");
 const saveBtn = document.querySelector(".save-btn");
-
+const searchInput = document.querySelector("#searchInput");
 const tableBody = document.querySelector("#tableBody");
 
 // Open Modal
@@ -136,5 +135,39 @@ if (!slugPattern.test(slug)) { //Check If Slug Is following pattern Firt Time se
 themeToggle.addEventListener("change", () => { /* Checks for theme toogle box being On or Off */
 
     document.body.classList.toggle("dark-mode");
+
+});
+
+// search 
+
+const noResultsRow = document.querySelector("#noResultsRow");
+
+searchInput.addEventListener("input", () => {
+
+    const searchText = searchInput.value.toLowerCase().trim();
+
+    const rows = tableBody.querySelectorAll("tr:not(#noResultsRow)");
+
+    let matchFound = false;
+
+    rows.forEach((row) => {
+
+        const slug = row.cells[0].textContent.toLowerCase();
+        const url = row.cells[1].textContent.toLowerCase();
+
+        if (slug.includes(searchText) || url.includes(searchText)) {
+            row.style.display = "";
+            matchFound = true;
+        } else {
+            row.style.display = "none";
+        }
+
+    });
+
+    if (matchFound) {
+        noResultsRow.style.display = "none";
+    } else {
+        noResultsRow.style.display = "";
+    }
 
 });

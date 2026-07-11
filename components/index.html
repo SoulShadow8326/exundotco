@@ -38,7 +38,9 @@
 </div>
 
 <div class="search-box">
-    <input type="text" placeholder="Search by slug or URL...">
+    <input type="text" 
+    id="searchInput"
+    placeholder="Search by slug or URL...">
 </div>
 </div>
 
@@ -105,6 +107,11 @@
             <button class="delete-btn">Delete</button>
         </td>
       </tr>
+      <tr id="noResultsRow" style="display: none;">
+    <td colspan="4" class="no-results">
+        No matching links found.
+    </td>
+</tr>
     </tbody>
 </table>
 </div>
