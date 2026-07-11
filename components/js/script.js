@@ -34,6 +34,14 @@ saveBtn.addEventListener("click", () => {
     // Remove exun.co/ if user enters it
     slug = slug.replace(/^exun\.co\//, "");
 
+// Slug validation
+const slugPattern = /^[A-Za-z0-9/]+$/;
+
+if (!slugPattern.test(slug)) { //Check If Slug Is following pattern Firt Time seeing != not
+    alert("Current SLug Is Invalid. Slugs can only contain letters, numbers and forward slashes (/).");
+    return;
+}
+
     const url = urlInput.value.trim();
 
     // Empty field validation
