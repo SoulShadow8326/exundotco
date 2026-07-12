@@ -175,7 +175,7 @@ themeToggle.addEventListener("change", () => {
 
 // search
 
-const noResultsRow = document.querySelector("#noResultsRow");
+let noResultsRow = document.querySelector("#noResultsRow");
 
 searchInput.addEventListener("input", () => {
   const searchText = searchInput.value.toLowerCase().trim();
@@ -218,8 +218,12 @@ window.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    tableBody.innerHTML = "";
-
+    tableBody.innerHTML = `<tr id="noResultsRow" style="display:none;">
+    <td colspan="4" class="no-results">
+        No matching links found.
+    </td>
+</tr>`;
+    noResultsRow = document.querySelector("#noResultsRow");
     data.links.forEach((link) => {
       createTableRow(link);
     });
