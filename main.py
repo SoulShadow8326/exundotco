@@ -20,11 +20,11 @@ collection.create_index("slug", unique=True)
 
 @app.errorhandler(404)
 def not_found(_):
-    return render_template("404.html"), 404
+    return render_template("404/404.html"), 404
 
 @app.errorhandler(500)
 def internal_error(_):
-    return render_template("500.html"), 500
+    return render_template("500/500.html"), 500
 
 class Link:
     @classmethod
@@ -118,6 +118,19 @@ def update_link():
     except Exception as e:
         print(e)
         return jsonify({"success": False, "message": "Failed to update link. Internal server error."}), 500
+
+@app.route("/api/getAll", methods=["GET"])
+def get_all_links():
+    try:
+        links = Link.getAll()
+        return jsonify({"success": True, "links": links}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False, "message": "Failed to retrieve links. Internal server error."}), 500
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard/dashboard.html")
 
 @app.route("/<path:slug>")
 def redirect_slug(slug):
