@@ -8,6 +8,8 @@ const urlInput = document.querySelector("#urlInput");
 const saveBtn = document.querySelector(".save-btn");
 const searchInput = document.querySelector("#searchInput");
 const tableBody = document.querySelector("#tableBody");
+let isEditing = false;
+let editingRow = null;
 
 function formatDate(timestamp) {
   return new Date(timestamp * 1000).toLocaleString("en-GB", {
@@ -77,12 +79,24 @@ addBtn.addEventListener("click", () => {
 // Close Modal
 cancelBtn.addEventListener("click", () => {
   modal.style.display = "none";
+  slugInput.value = "";
+  urlInput.value = "";
+  isEditing = false;
+  editingRow = null;
+  saveBtn.textContent = "Add Link";
+  modal.querySelector("h2").textContent = "Add New Link";
 });
 
 // Close Modal when clicking outside
 modal.addEventListener("click", (event) => {
   if (event.target === modal) {
     modal.style.display = "none";
+    slugInput.value = "";
+    urlInput.value = "";
+    isEditing = false;
+    editingRow = null;
+    saveBtn.textContent = "Add Link";
+    modal.querySelector("h2").textContent = "Add New Link";
   }
 });
 
@@ -124,42 +138,121 @@ saveBtn.addEventListener("click", async () => {
   const existingSlugs = tableBody.querySelectorAll("tr td:first-child");
 
   for (const cell of existingSlugs) {
-    if (cell.textContent === `exun.co/${slug}`) {
+    if (
+      cell.textContent === `exun.co/${slug}` &&
+      (!isEditing || cell.parentElement !== editingRow)
+    ) {
       alert("This slug already exists.");
       return;
     }
   }
-  const payload = { slug: `/${slug}`, url: url };
-  try {
-    const response = await fetch("/api/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const data = await response.json();
-    console.log(data);
-    if (data.success) {
-      createTableRow({
-        slug: `/${slug}`,
-        url: url,
-        date_modified: Date.now() / 1000,
+
+  if (isEditing) {
+    const oldSlug = "/" + editingRow.cells[0].textContent.replace(/^exun\.co\//, "").replace(/^\/+/, "");
+    const payload = {
+      slug: oldSlug,
+      new_slug: `/${slug}`,
+      new_url: url,
+    };
+    try {
+      const response = await fetch("/api/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
-    } else {
-      alert(data.message);
+      const data = await response.json();
+      if (data.success) {
+        editingRow.cells[0].textContent = `exun.co/${slug}`;
+        const anchor = editingRow.cells[1].querySelector("a");
+        anchor.href = url;
+        anchor.textContent = url;
+        editingRow.cells[2].textContent = formatDate(Date.now() / 1000);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update link. Please try again.");
     }
-  } catch (error) {
-    console.error("Error adding link:", error);
-    alert("Failed to add link. Please try again.");
+  } else {
+    const payload = { slug: `/${slug}`, url: url };
+    try {
+      const response = await fetch("/api/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      console.log(data);
+      if (data.success) {
+        createTableRow({
+          slug: `/${slug}`,
+          url: url,
+          date_modified: Date.now() / 1000,
+        });
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Error adding link:", error);
+      alert("Failed to add link. Please try again.");
+    }
   }
 
-  // Clear Inputs
   slugInput.value = "";
   urlInput.value = "";
-
-  // Close Modal
+  isEditing = false;
+  editingRow = null;
+  saveBtn.textContent = "Add Link";
+  modal.querySelector("h2").textContent = "Add New Link";
   modal.style.display = "none";
+});
+
+tableBody.addEventListener("click", async (event) => {
+  if (event.target.classList.contains("delete-btn")) {
+    const row = event.target.closest("tr");
+    const slug = "/" + row.cells[0].textContent.replace(/^exun\.co\//, "").replace(/^\/+/, "");
+    if (confirm("Are you sure you want to delete this link?")) {
+      try {
+        const response = await fetch("/api/delete", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ slug: slug }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          row.remove();
+          const rows = tableBody.querySelectorAll("tr:not(#noResultsRow)");
+          if (rows.length === 0) {
+            noResultsRow.style.display = "";
+          }
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Failed to delete link. Please try again.");
+      }
+    }
+  }
+
+  if (event.target.classList.contains("edit-btn")) {
+    editingRow = event.target.closest("tr");
+    isEditing = true;
+    const slug = editingRow.cells[0].textContent.replace(/^exun\.co\//, "").replace(/^\/+/, "");
+    const url = editingRow.cells[1].querySelector("a").href;
+    slugInput.value = slug;
+    urlInput.value = url;
+    modal.querySelector("h2").textContent = "Edit Link";
+    saveBtn.textContent = "Save Changes";
+    modal.style.display = "flex";
+  }
 });
 
 themeToggle.addEventListener("change", () => {
