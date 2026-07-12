@@ -31,10 +31,18 @@ cancelBtn.addEventListener("click", () => {
 
 });
 
-// Close Modal when clicking outside
 modal.addEventListener("click", (event) => {
     if (event.target === modal) {
         modal.style.display = "none";
+
+        slugInput.value = "";
+        urlInput.value = "";
+
+        isEditing = false;
+        editingRow = null;
+
+        saveBtn.textContent = "Add Link";
+        document.querySelector(".modal-content h2").textContent = "Add New Link";
     }
 });
 
@@ -163,6 +171,13 @@ saveBtn.addEventListener("click", () => {
 
     // Close Modal
     modal.style.display = "none";
+
+    isEditing = false;
+    editingRow = null;
+
+    saveBtn.textContent = "Add Link";
+    document.querySelector(".modal-content h2").textContent = "Add New Link";
+
 });
 
 tableBody.addEventListener("click", (event) => {
