@@ -104,7 +104,7 @@ saveBtn.addEventListener("click", async () => {
     return;
   }
 
-  const url = urlInput.value.trim();
+  const url = urlInput.value.trim(); /* Valid Url Checker */
 
   // Empty field validation
   if (!slug || !url) {
