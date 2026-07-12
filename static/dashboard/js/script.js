@@ -92,7 +92,7 @@ saveBtn.addEventListener("click", async () => {
 
   // Remove exun.co/ if user enters it
   slug = slug.replace(/^exun\.co\//, "");
-
+  slug = slug.replace(/^\/+/, "");
   // Slug validation
   const slugPattern = /^[A-Za-z0-9/]+$/;
 
