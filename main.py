@@ -1,12 +1,28 @@
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 from dotenv import load_dotenv
-from flask import jsonify, request,Flask,render_template,redirect,abort
+from flask import jsonify, request,Flask,render_template,redirect,abort,session,url_for
+from authlib.integrations.flask_client import OAuth
+from functools import wraps
 import time
 import os
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY")
+if not app.secret_key:
+    raise RuntimeError("Missing SECRET_KEY environment variable.")
+
+ALLOWED_EMAIL = "exun@dpsrkp.net"
+
+oauth = OAuth(app)
+google = oauth.register(
+    name="google",
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
+)
 
 mongoclient = os.getenv("mongoclient")
 print(mongoclient)
@@ -16,7 +32,23 @@ print("connected")
 
 db = client["Slug-URL-DB"] # WARNING: FOR NOW THIS IS JUST HARDCODED FOR MY TESTING CHANGE IT ACCORDING TO YOUR TESTING ENV
 collection = db["Slug-URL-Collection"] # WARNING: FOR NOW THIS IS JUST HARDCODED FOR MY TESTING CHANGE IT ACCORDING TO YOUR TESTING ENV
-collection.create_index("slug", unique=True)
+
+
+def is_logged_in():
+    return session.get("email") == ALLOWED_EMAIL
+
+
+def login_required(api=False):
+    def decorator(route):
+        @wraps(route)
+        def wrapped(*args, **kwargs):
+            if is_logged_in():
+                return route(*args, **kwargs)
+            if api:
+                return jsonify({"success": False, "message": "Authentication required."}), 401
+            return redirect(url_for("login"))
+        return wrapped
+    return decorator
 
 
 @app.errorhandler(404)
@@ -62,6 +94,7 @@ class Link:
             return []
    
 @app.route("/api/create", methods=["POST"])
+@login_required(api=True)
 def create_link():
     data = request.get_json() or {}
 
@@ -81,6 +114,7 @@ def create_link():
         return jsonify({"success": False, "message": "Failed to create link. Internal server error."}), 500
 
 @app.route("/api/delete", methods=["DELETE"])
+@login_required(api=True)
 def delete_link():
     data = request.get_json() or {}
 
@@ -99,6 +133,7 @@ def delete_link():
         return jsonify({"success": False, "message": "Failed to delete link. Internal server error."}), 500
 
 @app.route("/api/update", methods=["PUT"])
+@login_required(api=True)
 def update_link():
     data = request.get_json() or {}
 
@@ -121,6 +156,7 @@ def update_link():
         return jsonify({"success": False, "message": "Failed to update link. Internal server error."}), 500
 
 @app.route("/api/getAll", methods=["GET"])
+@login_required(api=True)
 def get_all_links():
     try:
         links = Link.getAll()
@@ -130,8 +166,34 @@ def get_all_links():
         return jsonify({"success": False, "message": "Failed to retrieve links. Internal server error."}), 500
 
 @app.route("/dashboard")
+@login_required()
 def dashboard():
     return render_template("dashboard/dashboard.html")
+
+@app.route("/login")
+def login():
+    if is_logged_in():
+        return redirect("/dashboard")
+    return render_template("dashboard/login.html")
+
+@app.route("/auth/google")
+def auth_google():
+    redirect_uri = url_for("auth_callback", _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route("/auth/callback")
+def auth_callback():
+    token = google.authorize_access_token()
+    user = token.get("userinfo", {})
+    email = user.get("email")
+
+    if email == ALLOWED_EMAIL and user.get("email_verified"):
+        session["email"] = email
+        return redirect("/dashboard")
+
+    session.clear()
+    return redirect(url_for("login"))
+
 @app.route("/")
 def redir_to_exunclan():
     return redirect("https://exunclan.com")
