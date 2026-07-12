@@ -9,6 +9,7 @@ load_dotenv()
 app = Flask(__name__)
 
 mongoclient = os.getenv("mongoclient")
+print(mongoclient)
 client = MongoClient(mongoclient)
 
 print("connected")
@@ -131,6 +132,9 @@ def get_all_links():
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard/dashboard.html")
+@app.route("/")
+def redir_to_exunclan():
+    return redirect("https://exunclan.com")
 
 @app.route("/<path:slug>")
 def redirect_slug(slug):

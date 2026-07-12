@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Frank+Ruhl+Libre:wght@300..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:"Inter";
 }
 
 body{
@@ -16,7 +18,7 @@ body{
     justify-content:space-between; /*Added to keep space between logo and toggle for Theme */
     align-items:center;
     padding:0 30px;
-    border-bottom:1px solid #e5e7eb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo{
@@ -90,14 +92,14 @@ body{
     font-size:13px;
     color:#6b7280;
     background:#fafafa;
-    border-bottom:1px solid #e5e7eb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     text-transform:uppercase;
 }
 
 .links-table td{
     padding:18px 20px;
     font-size:14px;
-    border-bottom:1px solid #ececec;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color:#374151;
 }
 
@@ -252,8 +254,8 @@ body{
 
  height:40px;
 
- background: whitesmoke;
 
+ background: whitesmoke;
  border-radius:50px;
 
  display:flex; /*Flex Putts Everything horizontally*/
@@ -268,7 +270,7 @@ body{
 
 
 .slider::before{
-
+ background: whitesmoke;
  content:"";
 
  position:absolute;
@@ -291,6 +293,9 @@ body{
 
     transform:translateX(50px);
 
+}
+#themeToggle:checked + .slider {
+    background: #333333; /* Replace with whatever color you want */
 }
 
 /* Dark Mode */
@@ -352,17 +357,25 @@ body{
 }
 
 .dark-mode .links-table td{ /* Fixing the color of the tables text */
-    color:#4da3ff;
+    color:rgb(232, 228, 228);
 }
 
 .dark-mode .links-table th{
-    color:#4da3ff;
+    color:rgb(232, 228, 228);
 }
 
 .dark-mode .links-table a{
-    color:#4da3ff;
+    color:rgb(194, 194, 194);
 }
 
 .dark-mode .links-table tr:hover{/* Making the table go black hen hovering over it */
     background: #2d2d2d;
+}
+.dark-mode .edit-btn {
+    background: rgba(64, 117, 237, 0.15); 
+    color: #82a4f5;
+}
+.dark-mode .delete-btn {
+    background: rgba(220, 38, 38, 0.15); 
+    color: #f87171;
 }
