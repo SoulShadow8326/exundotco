@@ -9,6 +9,7 @@
 
 body{
     background:#f7f8fc;
+    overscroll-behavior: none;
 }
 
 .navbar{
@@ -84,6 +85,17 @@ body{
     border:1px solid #e5e7eb;
     border-radius:10px;
     overflow:hidden;
+    table-layout:fixed;
+}
+
+.links-table td{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.links-table td:nth-child(4){
+    overflow:visible;
 }
 
 .links-table th{
@@ -95,6 +107,11 @@ body{
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     text-transform:uppercase;
 }
+
+.links-table th:nth-child(1){ width:24%; }
+.links-table th:nth-child(2){ width:32%; }
+.links-table th:nth-child(3){ width:20%; }
+.links-table th:nth-child(4){ width:24%; }
 
 .links-table td{
     padding:18px 20px;
@@ -152,13 +169,46 @@ body{
 }
 
 .table-container{
-    width: 90%;      
+    width: 90%;
+    max-width: 1200px;
     margin: 30px auto;
+    overflow-x: auto;
 }
 
 .links-table td:first-child{
     font-weight: 600;
-} 
+    cursor: pointer;
+}
+
+.links-table td:first-child:hover{
+    color: #4075ED;
+}
+
+.toast{
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1f2937;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.25s;
+    z-index: 1000;
+}
+
+.toast.show{
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.dark-mode .toast{
+    background: #333333;
+    color: rgb(232, 228, 228);
+}
 
 /* Modal Background */
 .modal{
@@ -198,10 +248,40 @@ body{
 
 .input-group input{
     width:100%;
-    padding:12px;
-    border:1px solid #d1d5db;
-    border-radius:8px;
+    padding:10px 2px;
+    border:none;
+    border-bottom:1.5px solid #d1d5db;
+    border-radius:0;
     font-size:14px;
+    background:transparent;
+    outline:none;
+    transition:border-color 0.2s;
+}
+
+.input-group input:focus{
+    border-bottom-color:#4075ED;
+}
+
+.slug-input-wrap{
+    display:flex;
+    align-items:center;
+    border-bottom:1.5px solid #d1d5db;
+    transition:border-color 0.2s;
+}
+
+.slug-input-wrap:focus-within{
+    border-bottom-color:#4075ED;
+}
+
+.slug-input-wrap .slug-prefix{
+    padding:10px 0 10px 2px;
+    font-size:14px;
+    color:#9ca3af;
+}
+
+.slug-input-wrap input{
+    border-bottom:none;
+    padding-left:2px;
 }
 
 .modal-buttons{
@@ -237,6 +317,34 @@ body{
 .button-container .edit-btn,
 .button-container .delete-btn{
     margin:0;
+}
+
+.load-more-btn{
+    display:block;
+    width:100%;
+    padding:14px;
+    background:#fafafa;
+    color:#4075ED;
+    border:1px solid #e5e7eb;
+    border-top:none;
+    border-radius:0 0 10px 10px;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+}
+
+.load-more-btn:hover{
+    background:#f3f4f6;
+}
+
+.dark-mode .load-more-btn{
+    background:#333333;
+    color:#82a4f5;
+    border-color:#555;
+}
+
+.dark-mode .load-more-btn:hover{
+    background:#3a3a3a;
 }
 
 .theme-switch{        /* Make the Mouse hover in hand mode over Toogle Button */
@@ -350,10 +458,20 @@ body{
     color:rgb(232, 228, 228);
 }
 
+.dark-mode .input-group input,
+.dark-mode .slug-input-wrap{
+    border-bottom-color:#555;
+}
+
+.dark-mode .slug-input-wrap .slug-prefix{
+    color:#777;
+}
+
 .dark-mode input{
-    background:#333333;
+    background:transparent;
     color:white;
-    border:1px solid #666;
+    border:none;
+    border-bottom:1.5px solid #666;
 }
 .dark-mode .table-container{
     background:#1f1f1f;

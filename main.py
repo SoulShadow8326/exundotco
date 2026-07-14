@@ -4,8 +4,10 @@ from dotenv import load_dotenv
 from flask import jsonify, request,Flask,render_template,redirect,abort,session,url_for
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
+from urllib.parse import urlparse
 import time
 import os
+import re
 load_dotenv()
 
 app = Flask(__name__)
@@ -46,6 +48,11 @@ collection.create_index([("slug", 1)], unique=True)
 
 def is_logged_in():
     return session.get("email") == ALLOWED_EMAIL
+
+
+def is_valid_redirect_url(url):
+    parsed = urlparse(url)
+    return parsed.scheme in ("http", "https") and bool(parsed.netloc)
 
 
 def login_required(api=False):
@@ -95,9 +102,14 @@ class Link:
             result = collection.update_one({"slug": slug}, {"$set": {"slug": new_slug, "url": new_url, "date_modified": time.time()}})
             return result
     @classmethod
-    def getAll(cls, limit=1000): #Call it to get all the links from DB
+    def getAll(cls, page=1, limit=100, q=None): #Call it to get a page of links from DB, optionally filtered by search text
         try:
-            result = collection.find({}, {"_id": 0}).limit(limit)
+            skip = (page - 1) * limit
+            query = {}
+            if q:
+                pattern = re.escape(q)
+                query = {"$or": [{"slug": {"$regex": pattern, "$options": "i"}}, {"url": {"$regex": pattern, "$options": "i"}}]}
+            result = collection.find(query, {"_id": 0}).skip(skip).limit(limit)
             return list(result)
         except Exception as e:
             print(e)
@@ -113,6 +125,9 @@ def create_link():
 
     if not slug or not url:
         return jsonify({"success": False, "message": "Slug and URL are required."}), 400
+
+    if not is_valid_redirect_url(url):
+        return jsonify({"success": False, "message": "URL must be an absolute http(s) URL."}), 400
 
     try:
         Link.create(slug, url)
@@ -154,6 +169,9 @@ def update_link():
     if not slug or not new_slug or not new_url:
         return jsonify({"success": False, "message": "All fields are required."}), 400
 
+    if not is_valid_redirect_url(new_url):
+        return jsonify({"success": False, "message": "URL must be an absolute http(s) URL."}), 400
+
     try:
         result = Link.updateBySlug(slug, new_slug, new_url)
         if result.matched_count == 0:
@@ -168,9 +186,12 @@ def update_link():
 @app.route("/api/getAll", methods=["GET"])
 @login_required(api=True)
 def get_all_links():
+    page = request.args.get("page", 1, type=int)
+    limit = min(request.args.get("limit", 100, type=int), 200)
+    q = request.args.get("q", "", type=str).strip() or None
     try:
-        links = Link.getAll()
-        return jsonify({"success": True, "links": links}), 200
+        links = Link.getAll(page=page, limit=limit, q=q)
+        return jsonify({"success": True, "links": links, "page": page, "has_more": len(links) == limit}), 200
     except Exception as e:
         print(e)
         return jsonify({"success": False, "message": "Failed to retrieve links. Internal server error."}), 500

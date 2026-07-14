@@ -115,8 +115,7 @@
 </tr> 
     </tbody>
 </table>
-</div>
-</table>
+<button id="loadMoreBtn" class="load-more-btn" style="display:none;">Load More</button>
 </div>
 
 <!-- Add Link Modal -->
@@ -127,7 +126,10 @@
 
         <div class="input-group">
             <label>Slug</label>
-            <input type="text" id="slugInput" placeholder="e.g. results2026">
+            <div class="slug-input-wrap">
+                <span class="slug-prefix">/</span>
+                <input type="text" id="slugInput" placeholder="results2026">
+            </div>
         </div>
 
         <div class="input-group">
@@ -173,6 +175,8 @@
  
     </div>
 </div>
+
+<div id="toast" class="toast"></div>
 
 <script src="{{ url_for('static', filename='dashboard/js/script.js') }}"></script>
 </body>

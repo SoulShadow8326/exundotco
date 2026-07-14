@@ -22,12 +22,35 @@ function formatDate(timestamp) {
   });
 }
 
+const toast = document.querySelector("#toast");
+let toastTimeout = null;
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2000);
+}
+
 function createTableRow(link) {
   const newRow = document.createElement("tr");
 
   // Slug Cell
   const slugCell = document.createElement("td");
-  slugCell.textContent = `exun.co${link.slug}`;
+  const slugText = `exun.co${link.slug}`;
+  slugCell.textContent = slugText;
+  slugCell.title = "Click to copy";
+  slugCell.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(`https://${slugText}`);
+      showToast("Copied to clipboard!");
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to copy.");
+    }
+  });
 
   // URL Cell
   const urlCell = document.createElement("td");
@@ -35,6 +58,7 @@ function createTableRow(link) {
   const anchor = document.createElement("a");
   anchor.href = link.url;
   anchor.textContent = link.url;
+  anchor.title = link.url;
   anchor.target = "_blank";
   anchor.rel = "noopener noreferrer";
 
@@ -269,10 +293,15 @@ themeToggle.addEventListener("change", () => {
 // search
 
 let noResultsRow = document.querySelector("#noResultsRow");
+let searchDebounce = null;
 
-searchInput.addEventListener("input", () => {
-  const searchText = searchInput.value.toLowerCase().trim();
+function rowExistsForSlug(slugText) {
+  return Array.from(tableBody.querySelectorAll("tr:not(#noResultsRow)")).some(
+    (row) => row.cells[0].textContent === slugText,
+  );
+}
 
+function filterLoadedRows(searchText) {
   const rows = tableBody.querySelectorAll("tr:not(#noResultsRow)");
 
   let matchFound = false;
@@ -289,37 +318,80 @@ searchInput.addEventListener("input", () => {
     }
   });
 
-  if (matchFound) {
-    noResultsRow.style.display = "none";
-  } else {
-    noResultsRow.style.display = "";
+  return matchFound;
+}
+
+async function searchServer(searchText) {
+  const response = await fetch(`/api/getAll?q=${encodeURIComponent(searchText)}&limit=50`);
+  const data = await response.json();
+
+  if (!data.success || data.links.length === 0) {
+    return;
+  }
+
+  // Bail if the user has since typed something else.
+  if (searchInput.value.toLowerCase().trim() !== searchText) {
+    return;
+  }
+
+  data.links.forEach((link) => {
+    if (!rowExistsForSlug(`exun.co${link.slug}`)) {
+      createTableRow(link);
+    }
+  });
+
+  filterLoadedRows(searchText);
+  noResultsRow.style.display = "none";
+}
+
+searchInput.addEventListener("input", () => {
+  const searchText = searchInput.value.toLowerCase().trim();
+
+  const matchFound = filterLoadedRows(searchText);
+
+  noResultsRow.style.display = matchFound ? "none" : "";
+
+  clearTimeout(searchDebounce);
+  if (!matchFound && searchText) {
+    searchDebounce = setTimeout(() => searchServer(searchText), 300);
   }
 });
+const loadMoreBtn = document.querySelector("#loadMoreBtn");
+let currentPage = 1;
+
+async function loadLinksPage(page) {
+  const response = await fetch(`/api/getAll?page=${page}&limit=100`);
+  const data = await response.json();
+
+  if (!data.success) {
+    alert(data.message);
+    return;
+  }
+
+  data.links.forEach((link) => {
+    createTableRow(link);
+  });
+
+  currentPage = page;
+  loadMoreBtn.style.display = data.has_more ? "" : "none";
+}
+
+loadMoreBtn.addEventListener("click", () => {
+  loadLinksPage(currentPage + 1).catch((error) => {
+    console.error(error);
+    alert("Failed to load more links.");
+  });
+});
+
 window.addEventListener("DOMContentLoaded", async () => {
   const savedTheme = localStorage.getItem("theme");
 
-  if (savedTheme === "dark") {
+  if (savedTheme !== "light") {
     document.body.classList.add("dark-mode");
     themeToggle.checked = true;
   }
   try {
-    const response = await fetch("/api/getAll");
-    const data = await response.json();
-
-    if (!data.success) {
-      alert(data.message);
-      return;
-    }
-
-    tableBody.innerHTML = `<tr id="noResultsRow" style="display:none;">
-    <td colspan="4" class="no-results">
-        No matching links found.
-    </td>
-</tr>`;
-    noResultsRow = document.querySelector("#noResultsRow");
-    data.links.forEach((link) => {
-      createTableRow(link);
-    });
+    await loadLinksPage(1);
   } catch (error) {
     console.error(error);
     alert("Failed to load links.");
