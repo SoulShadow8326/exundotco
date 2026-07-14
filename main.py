@@ -25,13 +25,18 @@ google = oauth.register(
 )
 
 mongoclient = os.getenv("mongoclient")
-print(mongoclient)
-client = MongoClient(mongoclient)
-
-print("connected")
+client = MongoClient(
+    mongoclient,
+    maxPoolSize=10,
+    minPoolSize=0,
+    serverSelectionTimeoutMS=5000,
+    connectTimeoutMS=5000,
+    socketTimeoutMS=10000,
+)
 
 db = client["Slug-URL-DB"] # WARNING: FOR NOW THIS IS JUST HARDCODED FOR MY TESTING CHANGE IT ACCORDING TO YOUR TESTING ENV
 collection = db["Slug-URL-Collection"] # WARNING: FOR NOW THIS IS JUST HARDCODED FOR MY TESTING CHANGE IT ACCORDING TO YOUR TESTING ENV
+collection.create_index([("slug", 1)], unique=True)
 
 
 def is_logged_in():
@@ -85,9 +90,9 @@ class Link:
             result = collection.update_one({"slug": slug}, {"$set": {"slug": new_slug, "url": new_url, "date_modified": time.time()}})
             return result
     @classmethod
-    def getAll(cls): #Call it to get all the links from DB
+    def getAll(cls, limit=1000): #Call it to get all the links from DB
         try:
-            result = collection.find({},{"_id":0})
+            result = collection.find({}, {"_id": 0}).limit(limit)
             return list(result)
         except Exception as e:
             print(e)
@@ -200,10 +205,7 @@ def redir_to_exunclan():
 
 @app.route("/<path:slug>")
 def redirect_slug(slug):
-    print("redirect route reached")
-    print(slug)
     link = Link.getBySlug("/" +slug)
-    print("link: ", link)
     if link is None:
         abort(404)
     return redirect(link["url"])
