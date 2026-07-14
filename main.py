@@ -12,6 +12,11 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 if not app.secret_key:
     raise RuntimeError("Missing SECRET_KEY environment variable.")
+app.config.update(
+    SESSION_COOKIE_SECURE=bool(os.getenv("VERCEL")),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
 
 ALLOWED_EMAIL = "exun@dpsrkp.net"
 

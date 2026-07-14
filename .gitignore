@@ -3,3 +3,4 @@ links.json
 .DS_Store
 __pycache__
 data.json
+.vercel
