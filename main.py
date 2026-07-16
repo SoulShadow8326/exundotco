@@ -44,6 +44,7 @@ client = MongoClient(
 db = client["Slug-URL-DB"] # WARNING: FOR NOW THIS IS JUST HARDCODED FOR MY TESTING CHANGE IT ACCORDING TO YOUR TESTING ENV
 collection = db["Slug-URL-Collection"] # WARNING: FOR NOW THIS IS JUST HARDCODED FOR MY TESTING CHANGE IT ACCORDING TO YOUR TESTING ENV
 collection.create_index([("slug", 1)], unique=True)
+collection.create_index([("date_modified", -1)])
 
 
 def is_logged_in():
@@ -109,7 +110,7 @@ class Link:
             if q:
                 pattern = re.escape(q)
                 query = {"$or": [{"slug": {"$regex": pattern, "$options": "i"}}, {"url": {"$regex": pattern, "$options": "i"}}]}
-            result = collection.find(query, {"_id": 0}).skip(skip).limit(limit)
+            result = collection.find(query, {"_id": 0}).sort("date_modified", -1).skip(skip).limit(limit)
             return list(result)
         except Exception as e:
             print(e)
